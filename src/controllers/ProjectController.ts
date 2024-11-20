@@ -21,4 +21,17 @@ export class ProjectController {
 
         res.send('All the projects')
     }
+    static getProjectById = async (req : Request, res: Response) => {
+        const {id} = req.params
+        try {
+            const project = await Project.findById(id)
+            if(!project){
+                const error = new Error('The project has not been found')
+                res.status(404).json({error: error.message})
+            }
+            res.json(project)
+        } catch (error) {
+            console.log(error)
+        }
+    }
 }
