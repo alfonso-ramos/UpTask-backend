@@ -1,5 +1,6 @@
 import type { Request, Response } from "express"
 import Project from "../models/Project"
+import Task from "../models/Task"
 export class ProjectController {
     static createProject = async (req: Request, res: Response) => {
         const project = new Project(req.body)
@@ -23,7 +24,7 @@ export class ProjectController {
     static getProjectById = async (req: Request, res: Response) => {
         const { id } = req.params
         try {
-            const project = await Project.findById(id)
+            const project = await Project.findById(id).populate('tasks')
             if (!project) {
                 const error = new Error('The project has not been found')
                 res.status(404).json({ error: error.message })
