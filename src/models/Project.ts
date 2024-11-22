@@ -1,9 +1,11 @@
-import mongoose, {Schema, Document} from "mongoose"
-
-export type ProjectType = Document & {
+import mongoose, {Schema, Document, PopulatedDoc, Types} from "mongoose"
+import { ITask } from './Task';
+import Type from 'mongoose';
+export interface IIProject extends Document {
     projectName: string,
     clientName: string,
-    description: string
+    description: string,
+    tasks: PopulatedDoc<ITask & Document>[]
 }
 
 const ProjectSchema: Schema = new Schema({
@@ -22,8 +24,14 @@ const ProjectSchema: Schema = new Schema({
         require: true,
         trim: true
     },
-})
+    tasks: [
+        {
+            type: Types.ObjectId,
+            ref: 'Task'
+        }
+    ]
+}, {timestamps: true})
 
-const Project = mongoose.model<ProjectType>('Project', ProjectSchema)
+const Project = mongoose.model<IIProject>('Project', ProjectSchema)
 
 export default Project
