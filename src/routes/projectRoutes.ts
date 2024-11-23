@@ -3,7 +3,8 @@ import { body, param } from 'express-validator';
 import { ProjectController } from '../controllers/ProjectController';
 import { handleInputErrors } from '../middleware/validation';
 import { TaskController } from '../controllers/TaskController';
-import { validateProjectExist } from '../middleware/project';
+import { projectExist } from '../middleware/project';
+import { taskBelongsToProject, taskExist } from '../middleware/task';
 
 const router = Router()
 
@@ -45,7 +46,7 @@ router.delete('/:id',
 )
 
 // Routes for tasks
-router.param('projectId', validateProjectExist)
+router.param('projectId', projectExist)
 
 router.post('/:projectId/tasks',
     body('name')
@@ -59,6 +60,9 @@ router.post('/:projectId/tasks',
 router.get('/:projectId/tasks',
     TaskController.getProjectTasks
 )
+
+router.param('taskId', taskExist)
+router.param('taskId', taskBelongsToProject)
 
 router.get('/:projectId/tasks/:taskId',
     param('taskId').isMongoId().withMessage('The id is not valid'),
