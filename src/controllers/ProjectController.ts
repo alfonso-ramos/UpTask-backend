@@ -14,12 +14,12 @@ export class ProjectController {
     static getAllProjects = async (req: Request, res: Response) => {
         try {
             const projects = await Project.find({})
-            res.json(projects)
+            res.status(200).json(projects)
         } catch (error) {
+            res.status(500).json({ message: "Error to get the projects" })
             console.log(error)
         }
-
-        res.send('All the projects')
+        // res.send('All the projects')
     }
     static getProjectById = async (req: Request, res: Response) => {
         const { id } = req.params
