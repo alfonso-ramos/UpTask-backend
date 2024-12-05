@@ -3,8 +3,10 @@ import User from '../models/User'
 import { hashPassword } from '../utils/auth'
 import Token from '../models/Token'
 import { generateToken } from '../utils/token'
+import { AuthEmail } from '../emails/AuthEmail'
 
 export class AuthController {
+
     static createAccount = async (req : Request, res : Response): Promise<void> => {
         try {
 
@@ -28,9 +30,37 @@ export class AuthController {
             token.token = generateToken()
             token.user = user.id
 
+            // Send email
+            AuthEmail.sendConfimationEmail({
+                email: user.email,
+                name: user.name,
+                token: token.token
+
+            })
+
             await Promise.allSettled([user.save(), token.save()])
-            
+
             res.send('Your account has been registered, check your email for verification')
+        } catch (error) {
+            res.status(500).json({error: 'Error'})
+        }
+    }
+
+    static confirmAccount = async (req : Request, res : Response): Promise<void> =>{
+        try {
+            const {token} = req.body
+
+            const tokenExist = await Token.findOne({token})
+            if(!tokenExist){
+                const error = new Error('Invalid token')
+                res.status(401).json({error: error.message})
+            }
+
+            const user = await User.findById(tokenExist.user)
+            user.confirmed = true
+
+            await Promise.allSettled([user.save(), tokenExist.deleteOne()])
+            res.send('Your account has been confirmed')
         } catch (error) {
             res.status(500).json({error: 'Error'})
         }
