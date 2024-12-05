@@ -10,8 +10,8 @@ router.post('/create-account',
         .notEmpty().withMessage('The name cannot be empty'),
     body('password')
         .isLength({ min: 8 }).withMessage('Password must be at least 8 characters'),
-    body('password_confirmation').custom((value, {req}) => {
-        if(value !== req.body.password){
+    body('password_confirmation').custom((value, { req }) => {
+        if (value !== req.body.password) {
             throw new Error('Passwords are not the same')
         }
         return true
@@ -28,6 +28,14 @@ router.post('/confirm-account',
         .notEmpty().withMessage('The token cannot be empty'),
     handleInputErrors,
     AuthController.confirmAccount
+)
 
+router.post('/login',
+    body('email')
+        .isEmail().withMessage('The email is not valid'),
+    body('password')
+        .notEmpty().withMessage('The password cannot be empty'),
+    handleInputErrors,
+    AuthController.login
 )
 export default router
