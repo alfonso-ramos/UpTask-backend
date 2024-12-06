@@ -17,6 +17,7 @@ export class AuthController {
             if(userExist){
                 const error = new Error('This user has been registered')
                 res.status(409).json({error: error.message})
+                
             }
 
             // Create an user
@@ -54,6 +55,7 @@ export class AuthController {
             if(!tokenExist){
                 const error = new Error('Invalid token')
                 res.status(404).json({error: error.message})
+                return
             }
 
             const user = await User.findById(tokenExist.user)
@@ -101,10 +103,50 @@ export class AuthController {
                 res.status(401).json({error: error.message})
                 return
             }
-
+            
             res.send("Authenticated")
         } catch (error) {
             res.status(500).json({error: 'Error'})
+        }
+    }
+
+    static requestConfirmationCode = async (req : Request, res : Response): Promise<void> => {
+        try {
+
+            const { email } = req.body
+            
+            // user exist
+            const user = await User.findOne({email})
+            if(!user){
+                const error = new Error('This user has not been registered')
+                res.status(409).json({error: error.message})
+                return
+            }
+            if(user.confirmed){
+                const error = new Error('The user has been confirmed')
+                res.status(403).json({error: error.message})
+                return
+            }
+
+            //Generate token 
+            const token = new Token()
+            token.token = generateToken()
+            token.user = user.id
+
+            // Send email
+            AuthEmail.sendConfimationEmail({
+                email: user.email,
+                name: user.name,
+                token: token.token
+
+            })
+
+            await Promise.allSettled([user.save(), token.save()])
+
+            res.send('A new token has been sent to your email')
+        } catch (error) {
+            res.status(500).json({error: 'Error'})
+            return
         }
     }
 }

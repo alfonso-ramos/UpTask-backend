@@ -15,9 +15,9 @@ export class AuthEmail {
             subject: 'TaskManager - confirm your account',
             text: 'TaskManager - Please, confirm your account to proceed',
             html: `
-                <p>Hello ${user.name}, Everything is almost ready, you just need to confirm your account</p>
+                <p>Hello ${user.name}, Everything is almost ready, you just need to confirm your account.</p>
                 <p>Visit the next link:</p>
-                <a href="">Confirm account</a>
+                <a href="${process.env.FRONTEND_URL}/auth/confirm-account">Confirm account</a>
                 <p>Enter the token: <b>${user.token}</b> </p>
                 <p>This token expires in 5 minutes</p>
                 `
