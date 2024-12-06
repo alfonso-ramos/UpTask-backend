@@ -2,8 +2,12 @@ import type { Request, Response } from "express"
 import Project from "../models/Project"
 import Task from "../models/Task"
 export class ProjectController {
+
     static createProject = async (req: Request, res: Response) => {
         const project = new Project(req.body)
+
+        project.manager = req.user.id
+        
         try {
             await project.save()
             res.send("Project has been created")
