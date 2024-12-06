@@ -23,4 +23,20 @@ export class AuthEmail {
                 `
         })
     }
+
+    static sendPasswordResetToken = async (user: IEmail) => {
+        await transporter.sendMail({
+            from: 'TaskManager <team@taskmanager.com>',
+            to: user.email,
+            subject: 'TaskManager - Reset password',
+            text: 'TaskManager - Reset password',
+            html: `
+                <p>Hello ${user.name}, you have requested to reset your password.</p>
+                <p>Visit the next link:</p>
+                <a href="${process.env.FRONTEND_URL}/auth/new-password">Reset password</a>
+                <p>Enter the token: <b>${user.token}</b> </p>
+                <p>This token expires in 5 minutes</p>
+                `
+        })
+    }
 }

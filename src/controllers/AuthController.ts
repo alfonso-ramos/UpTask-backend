@@ -17,7 +17,7 @@ export class AuthController {
             if(userExist){
                 const error = new Error('This user has been registered')
                 res.status(409).json({error: error.message})
-                
+                return
             }
 
             // Create an user
@@ -44,6 +44,7 @@ export class AuthController {
             res.send('Your account has been registered, check your email for verification')
         } catch (error) {
             res.status(500).json({error: 'Error'})
+            return
         }
     }
 
@@ -65,6 +66,7 @@ export class AuthController {
             res.send('Your account has been confirmed')
         } catch (error) {
             res.status(500).json({error: 'Error'})
+            return
         }
     }
 
@@ -107,6 +109,7 @@ export class AuthController {
             res.send("Authenticated")
         } catch (error) {
             res.status(500).json({error: 'Error'})
+            return
         }
     }
 
@@ -144,6 +147,86 @@ export class AuthController {
             await Promise.allSettled([user.save(), token.save()])
 
             res.send('A new token has been sent to your email')
+            return
+        } catch (error) {
+            res.status(500).json({error: 'Error'})
+            return
+        }
+    }
+
+    static forgotPassword = async (req : Request, res : Response): Promise<void> => {
+        try {
+
+            const { email } = req.body
+            
+            // user exist
+            const user = await User.findOne({email})
+            if(!user){
+                const error = new Error('This user has not been registered')
+                res.status(409).json({error: error.message})
+                return
+            }
+
+            //Generate token 
+            const token = new Token()
+            token.token = generateToken()
+            token.user = user.id
+            await token.save()
+
+            // Send email
+            AuthEmail.sendPasswordResetToken({
+                email: user.email,
+                name: user.name,
+                token: token.token
+
+            })
+
+            res.send('Check the instructions in your email')
+            return
+        } catch (error) {
+            res.status(500).json({error: 'Error'})
+            return
+        }
+    }
+
+    static validateToken = async (req : Request, res : Response): Promise<void> =>{
+        try {
+            const {token} = req.body
+
+            const tokenExist = await Token.findOne({token})
+            if(!tokenExist){
+                const error = new Error('Invalid token')
+                res.status(404).json({error: error.message})
+                return
+            }
+
+            res.send('Valid token, create your new password')
+            return
+        } catch (error) {
+            res.status(500).json({error: 'Error'})
+            return
+        }
+    }
+
+    static updatePasswordWithToken = async (req : Request, res : Response): Promise<void> =>{
+        try {
+            const {token} = req.params
+            const {password} = req.body
+
+            const tokenExist = await Token.findOne({token})
+            if(!tokenExist){
+                const error = new Error('Invalid token')
+                res.status(404).json({error: error.message})
+                return
+            }
+
+            const user = await User.findById(tokenExist.user)
+            user.password = await hashPassword(password)
+
+            await Promise.allSettled([user.save(), tokenExist.deleteOne()])
+
+            res.send('The password has been successfully reset.')
+            return
         } catch (error) {
             res.status(500).json({error: 'Error'})
             return
