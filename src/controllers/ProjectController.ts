@@ -37,6 +37,11 @@ export class ProjectController {
                 const error = new Error('The project has not been found')
                 res.status(404).json({ error: error.message })
             }
+
+            if(project.manager.toString() !== req.user.id.toString()){
+                const error = new Error('Not valid action')
+                res.status(404).json({ error: error.message })
+            }
             res.json(project)
         } catch (error) {
             console.log(error)
@@ -51,6 +56,12 @@ export class ProjectController {
                 const error = new Error('The project has not been found')
                 res.status(404).json({ error: error.message })
             }
+
+            if(project.manager.toString() !== req.user.id.toString()){
+                const error = new Error('Just the manager can update the project')
+                res.status(404).json({ error: error.message })
+            }
+
             project.clientName = req.body.clientName
             project.projectName = req.body.projectName
             project.description = req.body.description
@@ -71,6 +82,13 @@ export class ProjectController {
                 const error = new Error('The project has not been found')
                 res.status(404).json({ error: error.message })
             }
+
+
+            if(project.manager.toString() !== req.user.id.toString()){
+                const error = new Error('Just the manager can delete the project')
+                res.status(404).json({ error: error.message })
+            }
+            
             await project.deleteOne()
 
             res.send('Project deleted')
