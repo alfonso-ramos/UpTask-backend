@@ -234,4 +234,9 @@ export class AuthController {
             return
         }
     }
+
+    static user = async (req : Request, res : Response): Promise<void> =>{
+        res.json(req.user)
+        return
+    }
 }

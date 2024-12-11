@@ -28,7 +28,7 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
             const user = await User.findById(decoded.id).select('_id name email')
             if(user){
                 req.user = user
-                console.log(user)
+                next()
             }else{
                 res.status(500).json({error: 'Invalid Token'})
                 return
@@ -38,5 +38,4 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
         res.status(500).json({error: 'Invalid Token'})
         return
     }
-    next()
 }
