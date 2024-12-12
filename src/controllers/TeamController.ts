@@ -11,8 +11,10 @@ export class TeamMemberController {
         if(!user){
             const error = new Error('User not found')
             res.status(404).json({error: error.message})
+            return
         }
         res.json(user)
+        return
     }
 
     static getProjectTeam = async (req: Request, res: Response) => {
@@ -32,10 +34,12 @@ export class TeamMemberController {
         if(!user){
             const error = new Error('User not found')
             res.status(404).json({error: error.message})
+            return
         }
         if(req.project.team.some(team => team.toString() === user.id.toString())){
             const error = new Error('The user already exist in the project')
             res.status(409).json({error: error.message})
+            return
         }
 
         req.project.team.push(user.id)
@@ -47,14 +51,14 @@ export class TeamMemberController {
 
 
     static removeMemberById = async (req: Request, res: Response) => {
-        const { id } = req.body
+        const { userId } = req.params
 
-        if(!req.project.team.some(team => team.toString() === id)){
+        if(!req.project.team.some(team => team.toString() === userId)){
             const error = new Error('The user does not exist in this project')
             res.status(409).json({error: error.message})
         }
 
-        req.project.team = req.project.team.filter(teamMember => teamMember.toString() !== id)
+        req.project.team = req.project.team.filter(teamMember => teamMember.toString() !== userId)
 
         await req.project.save()
 
