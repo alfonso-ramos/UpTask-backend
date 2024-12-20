@@ -7,6 +7,7 @@ import { connectDB } from "./config/db";
 import authRoutes from './routes/authRoutes'
 import projectRoutes from './routes/projectRoutes'
 
+
 dotenv.config()
 connectDB()
 const app = express()
