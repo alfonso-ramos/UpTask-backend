@@ -15,7 +15,7 @@ app.use(cors(corsConfig))
 //Logging
 app.use(morgan('dev'))
 
-//Read form dataa
+//Read form data
 app.use(express.json())
 
 // Routes
